@@ -1,9 +1,9 @@
 <?php
 
 $conn = new mysqli(
-    "localhost",
+    "db",
     "root",
-    "",
+    "root",
     "todolist"
 );
 
