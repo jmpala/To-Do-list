@@ -11,22 +11,32 @@ if ($conn->connect_error) {
     die ("Connection Failed" . $conn->connect_error);
 }
 
-if (isset($_POST["addtask"])) {
-    $task = $_POST["task"];
-    $conn->query("INSERT INTO tasks (task) VALUES ('$task')");
-    header("Location: index.php");
+if ($_SERVER['REQUEST_METHOD'] === "POST") {
+    if (isset($_POST["addtask"])) {
+        $task = $_POST["task"];
+        $stmt = $conn->prepare("INSERT INTO tasks (task) VALUES (?)");
+        $stmt->bind_param("s", $task);
+        $stmt->execute();
+        header("Location: index.php");
+    }
 }
 
-if (isset($_GET["delete"])) {
-    $id = $_GET["delete"];
-    $conn->query("DELETE FROM tasks WHERE id = '$id'");
-    header("Location: index.php");
-}
+if ($_SERVER['REQUEST_METHOD'] === "GET") {
+    if (isset($_GET["delete"])) {
+        $id = $_GET["delete"];
+        $stmt = $conn->prepare("DELETE FROM tasks WHERE id = ?");
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        header("Location: index.php");
+    }
 
-if (isset($_GET["complete"])) {
-    $id = $_GET["complete"];
-    $conn->query("UPDATE tasks SET status = 'completed' WHERE id = '$id'");
-    header("Location: index.php");
+    if (isset($_GET["complete"])) {
+        $id = $_GET["complete"];
+        $stmt = $conn->prepare("UPDATE tasks SET status = 'completed' WHERE id = ?");
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        header("Location: index.php");
+    }
 }
 
 $result = $conn->query("SELECT * FROM tasks ORDER BY id DESC");
